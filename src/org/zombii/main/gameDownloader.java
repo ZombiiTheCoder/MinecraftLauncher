@@ -12,6 +12,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class gameDownloader {
     private configParser config;
     private JsonParser parser;

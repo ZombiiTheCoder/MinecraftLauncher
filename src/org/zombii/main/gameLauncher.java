@@ -8,27 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@Deprecated
 public class gameLauncher {
 
     private final configParser config;
 
-    public gameLauncher(configParser config) { this.config = config; }
-
-    private void addUserArgs(List<String> args) {
-        args.add("--username");
-        args.add("Zombiefied4728");
-        args.add("--uuid");
-        args.add("27c5d8e7889c4c40b63cc1d54db72580");
-        args.add("--xuid");
-        args.add("2535472368475572");
-        args.add("--userProperties");
-        args.add("{}");
-        args.add("--clientId");
-        args.add("YmQyNDViY2UtOGFhNC00ODNmLWI4NzctNmFiZmIxZWE4MWY5");
-        args.add("--accessToken");
-        args.add("eyJraWQiOiJhYzg0YSIsImFsZyI6IkhTMjU2In0.eyJ4dWlkIjoiMjUzNTQ3MjM2ODQ3NTU3MiIsImFnZyI6IkFkdWx0Iiwic3ViIjoiYTM3OWU3YzAtNDA2Ni00MTMyLWE3NjgtMTRlZDdlZjhmODk0IiwiYXV0aCI6IlhCT1giLCJucyI6ImRlZmF1bHQiLCJyb2xlcyI6W10sImlzcyI6ImF1dGhlbnRpY2F0aW9uIiwiZmxhZ3MiOlsidHdvZmFjdG9yYXV0aCIsIm1pbmVjcmFmdF9uZXQiLCJvcmRlcnNfMjAyMiJdLCJwcm9maWxlcyI6eyJtYyI6IjI3YzVkOGU3LTg4OWMtNGM0MC1iNjNjLWMxZDU0ZGI3MjU4MCJ9LCJwbGF0Zm9ybSI6IlVOS05PV04iLCJ5dWlkIjoiMDdkOWVhMmQ3YTUyYjkwYjllZWNmNThiOWQ0OTQ5OGEiLCJuYmYiOjE2OTQ4ODkyMDAsImV4cCI6MTY5NDk3NTYwMCwiaWF0IjoxNjk0ODg5MjAwfQ.s6cZQJ48F04vMnjj1ANfJkMUTDnCSAWQitTJY_tQRJM");
-        args.add("--userType");
-        args.add("msa");
+    public gameLauncher(configParser config) {
+        this.config = config;
     }
 
     public void Launch() throws Exception {
@@ -85,7 +71,7 @@ public class gameLauncher {
         args.add(g.assetsDir);
         args.add("--assetsIndex");
         args.add(g.assetIndex);
-        addUserArgs(args);
+        personal.addUserArgs(args);
         args.add("--versionType");
         args.add(config.vType);
         ProcessBuilder build = new ProcessBuilder();
@@ -98,21 +84,30 @@ public class gameLauncher {
         String manifest = "";
         if (isQuilt) {
             JsonParser parser = new JsonParser();
-            String v = parser.parse(HttpUtils.read("https://meta.quiltmc.org/v3/versions/loader/" + config.config.version)).getAsJsonArray().get(0).getAsJsonObject().get("loader").getAsJsonObject().get("version").getAsString();
-            manifest = "https://meta.quiltmc.org/v3/versions/loader/"+config.config.version+"/"+v+"/profile/json";
+            String v = parser
+                    .parse(HttpUtils.read("https://meta.quiltmc.org/v3/versions/loader/" + config.config.version))
+                    .getAsJsonArray().get(0).getAsJsonObject().get("loader").getAsJsonObject().get("version")
+                    .getAsString();
+            manifest = "https://meta.quiltmc.org/v3/versions/loader/" + config.config.version + "/" + v
+                    + "/profile/json";
         } else {
             JsonParser parser = new JsonParser();
-            String v = parser.parse(HttpUtils.read("https://meta.fabricmc.net/v2/versions/loader/" + config.config.version)).getAsJsonArray().get(0).getAsJsonObject().get("loader").getAsJsonObject().get("version").getAsString();
-            manifest = "https://meta.fabricmc.net/v2/versions/loader/"+config.config.version+"/"+v+"/profile/json";
+            String v = parser
+                    .parse(HttpUtils.read("https://meta.fabricmc.net/v2/versions/loader/" + config.config.version))
+                    .getAsJsonArray().get(0).getAsJsonObject().get("loader").getAsJsonObject().get("version")
+                    .getAsString();
+            manifest = "https://meta.fabricmc.net/v2/versions/loader/" + config.config.version + "/" + v
+                    + "/profile/json";
         }
         configParser cc2 = new configParser();
         Config z2 = new Config();
-        z2.version = config.config.launcher+"_"+config.config.version;
+        z2.version = config.config.launcher + "_" + config.config.version;
         z2.launcher = config.config.launcher;
         cc2.loadConfig(z2);
         cc2.loadVmanifest();
-        new File(".minecraft/versions/"+config.config.launcher+"_"+config.config.version+"/").mkdirs();
-        HttpUtils.download(manifest, ".minecraft/versions/"+config.config.launcher+"_"+config.config.version+"/"+config.config.launcher+"_"+config.config.version+".json");
+        new File(".minecraft/versions/" + config.config.launcher + "_" + config.config.version + "/").mkdirs();
+        HttpUtils.download(manifest, ".minecraft/versions/" + config.config.launcher + "_" + config.config.version + "/"
+                + config.config.launcher + "_" + config.config.version + ".json");
         gameDownloader gz = new gameDownloader(cc2, false);
         configParser cc = new configParser();
         Config z = new Config();
@@ -126,7 +121,7 @@ public class gameLauncher {
         g.ExtractAndDownloadNatives();
         gz.FabDownloadDependencies();
         g.DownloadClientJar();
-//        g.DownloadAssets();
+        // g.DownloadAssets();
         ArrayList<File> q = new ArrayList<>(List.of(Objects.requireNonNull(new File(g.LibrariesDir).listFiles())));
         StringBuilder libs = new StringBuilder();
         for (File x : q) {
@@ -180,7 +175,7 @@ public class gameLauncher {
         args.add(g.assetsDir);
         args.add("--assetsIndex");
         args.add(g.assetIndex);
-        addUserArgs(args);
+        personal.addUserArgs(args);
         System.out.println(cc.vType);
         args.add("--versionType");
         args.add(cc.vType);
@@ -192,7 +187,7 @@ public class gameLauncher {
     public void preLaunchFabric(boolean isQuilt) throws Exception {
         configParser cc2 = new configParser();
         Config z2 = new Config();
-        z2.version = config.config.launcher+"_"+config.config.version;
+        z2.version = config.config.launcher + "_" + config.config.version;
         z2.launcher = config.config.launcher;
         cc2.loadConfig(z2);
         cc2.loadVmanifest();
@@ -258,7 +253,7 @@ public class gameLauncher {
         args.add(g.assetsDir);
         args.add("--assetsIndex");
         args.add(g.assetIndex);
-        addUserArgs(args);
+        personal.addUserArgs(args);
         System.out.println(cc.vType);
         args.add("--versionType");
         args.add(cc.vType);
@@ -317,7 +312,7 @@ public class gameLauncher {
         args.add(g.assetsDir);
         args.add("--assetsIndex");
         args.add(g.assetIndex);
-        addUserArgs(args);
+        personal.addUserArgs(args);
         args.add("--versionType");
         args.add(config.vType);
         ProcessBuilder build = new ProcessBuilder();

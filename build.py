@@ -11,7 +11,9 @@ for root, dirs, files in os.walk("src"):
         f.close()
         fr.close()
 JDK = 'E:/Program Files/Java/jdk-20/bin'
-# JDK = 'C:/Program Files/Java/jdk-20/bin'
+if not (os.path.exists(JDK)):
+    JDK = 'C:/Program Files/Java/jdk-20/bin'
+
 print(os.path.join(JDK, "javac.exe")); args = [os.path.join(JDK, "javac.exe"), "-cp", "libs/gson-2.10.1.jar"]; args.extend(src); subprocess.call(args)
 with zipfile.ZipFile("libs/gson-2.10.1.jar", "r") as f:
     f.extractall("Compiledsrc/")
