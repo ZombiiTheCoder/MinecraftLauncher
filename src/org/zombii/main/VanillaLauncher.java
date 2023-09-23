@@ -31,53 +31,68 @@ public class VanillaLauncher {
 
     public VanillaLauncher(configParser config) {
         this.config = config;
-        VersionDir = new File("versions/"+config.config.version);
-        GameDir = new File(VersionDir+"/.minecraft");
-        GameJar = new File(VersionDir+"/"+config.config.version+".jar");
-        GameManifest = new File(VersionDir+"/"+config.config.version+".json");
-        AssetsDir = new File(GameDir+"/assets");
-        AssetIndexes = new File(AssetsDir+"/indexes");
-        LoggingDir = new File(GameDir+"/assets/log_configs");
-        NativesDir = new File(VersionDir+"/natives");
-        LibrariesDir = new File(VersionDir+"/libs");
+        VersionDir = new File("versions/" + config.config.version);
+        GameDir = new File(VersionDir + "/.minecraft");
+        GameJar = new File(VersionDir + "/" + config.config.version + ".jar");
+        GameManifest = new File(VersionDir + "/" + config.config.version + ".json");
+        AssetsDir = new File(GameDir + "/assets");
+        AssetIndexes = new File(AssetsDir + "/indexes");
+        LoggingDir = new File(GameDir + "/assets/log_configs");
+        NativesDir = new File(VersionDir + "/natives");
+        LibrariesDir = new File(VersionDir + "/libs");
     }
 
     public VanillaLauncher(configParser config, configParser moddedconfig) {
         this.config = config;
-        String simpleName = moddedconfig.config.launcher+"_"+moddedconfig.config.version;
-        VersionDir = new File("versions/"+simpleName);
-        GameDir = new File(VersionDir+"/.minecraft");
-        GameJar = new File(VersionDir+"/"+simpleName+".jar");
-        GameManifest = new File(VersionDir+"/"+config.config.version+".json");
-        AssetsDir = new File(GameDir+"/assets");
-        AssetIndexes = new File(AssetsDir+"/indexes");
-        LoggingDir = new File(GameDir+"/assets/log_configs");
-        NativesDir = new File(VersionDir+"/natives");
-        LibrariesDir = new File(VersionDir+"/libs");
+        String simpleName = moddedconfig.config.launcher + "_" + moddedconfig.config.version;
+        VersionDir = new File("versions/" + simpleName);
+        GameDir = new File(VersionDir + "/.minecraft");
+        GameJar = new File(VersionDir + "/" + simpleName + ".jar");
+        GameManifest = new File(VersionDir + "/" + config.config.version + ".json");
+        AssetsDir = new File(GameDir + "/assets");
+        AssetIndexes = new File(AssetsDir + "/indexes");
+        LoggingDir = new File(GameDir + "/assets/log_configs");
+        NativesDir = new File(VersionDir + "/natives");
+        LibrariesDir = new File(VersionDir + "/libs");
     }
 
     public void CreateBaseDirs() {
-        VersionDir.mkdirs(); GameDir.mkdirs(); AssetsDir.mkdirs();
-        LoggingDir.mkdirs(); NativesDir.mkdirs(); LibrariesDir.mkdirs();
-        new File(VersionDir+"/nativesJars").mkdirs(); AssetIndexes.mkdirs();
+        VersionDir.mkdirs();
+        GameDir.mkdirs();
+        AssetsDir.mkdirs();
+        LoggingDir.mkdirs();
+        NativesDir.mkdirs();
+        LibrariesDir.mkdirs();
+        new File(VersionDir + "/nativesJars").mkdirs();
+        AssetIndexes.mkdirs();
 
     }
 
-    public boolean VersionInstalled() { return new File("versions/" + config.config.version).exists(); }
+    public boolean VersionInstalled() {
+        return new File("versions/" + config.config.version).exists();
+    }
+
     public void Install() throws Exception {
         CreateBaseDirs();
         manifest = json.parse(HttpUtils.download(config.vUrl, GameManifest.toString())).getAsJsonObject();
-        AssetManifest = new File(AssetIndexes+"/"+manifest.get("assetIndex").getAsJsonObject().get("id").getAsString()+".json");
+        AssetManifest = new File(
+                AssetIndexes + "/" + manifest.get("assetIndex").getAsJsonObject().get("id").getAsString() + ".json");
         AssetId = manifest.get("assetIndex").getAsJsonObject().get("id").getAsString();
-        assetManifest = json.parse(HttpUtils.download(manifest.get("assetIndex").getAsJsonObject().get("url").getAsString(), AssetManifest.toString())).getAsJsonObject();
-        HttpUtils.download(manifest.get("downloads").getAsJsonObject().get("client").getAsJsonObject().get("url").getAsString(), GameJar.toString());
+        assetManifest = json
+                .parse(HttpUtils.download(manifest.get("assetIndex").getAsJsonObject().get("url").getAsString(),
+                        AssetManifest.toString()))
+                .getAsJsonObject();
+        HttpUtils.download(
+                manifest.get("downloads").getAsJsonObject().get("client").getAsJsonObject().get("url").getAsString(),
+                GameJar.toString());
         DownloadLibsAndNatives();
         DownloadAssets();
         if (manifest.has("logging")) {
             String id = manifest.get("logging").getAsJsonObject().get("client").getAsJsonObject().get("file")
                     .getAsJsonObject().get("id").getAsString();
             LoggingConfig = new File(LoggingDir + "/" + id);
-            String url = manifest.get("logging").getAsJsonObject().get("client").getAsJsonObject().get("file").getAsJsonObject().get("url").getAsString();
+            String url = manifest.get("logging").getAsJsonObject().get("client").getAsJsonObject().get("file")
+                    .getAsJsonObject().get("url").getAsString();
             HttpUtils.download(url, LoggingConfig.toString());
         }
     }
@@ -85,13 +100,14 @@ public class VanillaLauncher {
     public void DownloadLibsAndNatives() throws Exception {
         List<String> libs = new ArrayList<>();
         for (int i = 0; i < manifest.get("libraries").getAsJsonArray().size(); i++) {
-            JsonObject downloads = manifest.get("libraries").getAsJsonArray().get(i).getAsJsonObject().get("downloads").getAsJsonObject();
+            JsonObject downloads = manifest.get("libraries").getAsJsonArray().get(i).getAsJsonObject().get("downloads")
+                    .getAsJsonObject();
             CollectParentAndChildLibs(0, downloads, downloads, libs);
         }
         LibPruner p = new LibPruner(libs);
         ExtractAndDownloadNatives(p.prune().get("win"));
         for (String lib : p.prune().get("lib")) {
-            HttpUtils.download(lib, LibrariesDir+"/"+new File(new URI(lib).getPath()).getName());
+            HttpUtils.download(lib, LibrariesDir + "/" + new File(new URI(lib).getPath()).getName());
         }
     }
 
@@ -113,7 +129,7 @@ public class VanillaLauncher {
 
     public void ExtractAndDownloadNatives(List<String> natives) throws Exception {
         List<String> dir = new ArrayList<>();
-        for (String x: natives) {
+        for (String x : natives) {
             dir.add(NativesDir + "Jars/" + new File(new URI(x).getPath()).getName());
             HttpUtils.download(x, NativesDir + "Jars/" + new File(new URI(x).getPath()).getName());
         }
@@ -123,7 +139,7 @@ public class VanillaLauncher {
             ZipUtils.unzip(x, NativesDir.toString());
             FileUtils.deleteDirectory(new File(NativesDir + "/META-INF"));
         }
-        FileUtils.deleteDirectory(new File(NativesDir+"Jars"));
+        FileUtils.deleteDirectory(new File(NativesDir + "Jars"));
     }
 
     private void CollectParentAndChildLibs(int deepness, JsonObject parent, JsonObject sub, List<String> libs) {
@@ -143,7 +159,6 @@ public class VanillaLauncher {
             }
         }
     }
-
 
     public void Launch() throws Exception {
         manifest = json.parse(FileUtils.read(GameManifest.toString())).getAsJsonObject();
@@ -199,7 +214,7 @@ public class VanillaLauncher {
         args.add(AssetsDir.toString());
         args.add("--assetIndex");
         args.add(AssetId);
-        configParser.addUserArgs(args);
+        configParser.addUserArgs(args, config.config);
         args.add("--versionType");
         args.add(config.vType);
         ProcessBuilder build = new ProcessBuilder();

@@ -89,23 +89,6 @@ public class configParser {
         }
     }
 
-    public static void addUserArgs(List<String> args) {
-        args.add("--username");
-        args.add("Zombiefied4728");
-        args.add("--uuid");
-        args.add("27c5d8e7889c4c40b63cc1d54db72580");
-        args.add("--xuid");
-        args.add("2535472368475572");
-        args.add("--userProperties");
-        args.add("{}");
-        args.add("--clientId");
-        args.add("YmQyNDViY2UtOGFhNC00ODNmLWI4NzctNmFiZmIxZWE4MWY5");
-        args.add("--accessToken");
-        args.add("eyJraWQiOiJhYzg0YSIsImFsZyI6IkhTMjU2In0.eyJ4dWlkIjoiMjUzNTQ3MjM2ODQ3NTU3MiIsImFnZyI6IkFkdWx0Iiwic3ViIjoiYTM3OWU3YzAtNDA2Ni00MTMyLWE3NjgtMTRlZDdlZjhmODk0IiwiYXV0aCI6IlhCT1giLCJucyI6ImRlZmF1bHQiLCJyb2xlcyI6W10sImlzcyI6ImF1dGhlbnRpY2F0aW9uIiwiZmxhZ3MiOlsidHdvZmFjdG9yYXV0aCIsIm1pbmVjcmFmdF9uZXQiLCJvcmRlcnNfMjAyMiJdLCJwcm9maWxlcyI6eyJtYyI6IjI3YzVkOGU3LTg4OWMtNGM0MC1iNjNjLWMxZDU0ZGI3MjU4MCJ9LCJwbGF0Zm9ybSI6IlVOS05PV04iLCJ5dWlkIjoiMDdkOWVhMmQ3YTUyYjkwYjllZWNmNThiOWQ0OTQ5OGEiLCJuYmYiOjE2OTQ4ODkyMDAsImV4cCI6MTY5NDk3NTYwMCwiaWF0IjoxNjk0ODg5MjAwfQ.s6cZQJ48F04vMnjj1ANfJkMUTDnCSAWQitTJY_tQRJM");
-        args.add("--userType");
-        args.add("msa");
-    }
-
     public static void addUserArgs(List<String> args, Config config) {
         args.add("--username");
         args.add(config.name);

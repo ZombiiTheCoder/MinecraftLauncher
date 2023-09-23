@@ -31,43 +31,54 @@ public class QuiltLauncher {
 
     public QuiltLauncher(configParser config) {
         this.config = config;
-        SimpleName = config.config.launcher+"_"+config.config.version;
-        VersionDir = new File("versions/"+SimpleName);
-        GameDir = new File(VersionDir+"/.minecraft");
-        GameJar = new File(VersionDir+"/"+SimpleName+".jar");
-        GameManifest = new File(VersionDir+"/"+SimpleName+".json");
-        BaseManifest = new File(VersionDir+"/"+config.config.version+".json");
-        AssetsDir = new File(GameDir+"/assets");
-        AssetIndexes = new File(AssetsDir+"/indexes");
-        LoggingDir = new File(GameDir+"/assets/log_configs");
-        NativesDir = new File(VersionDir+"/natives");
-        LibrariesDir = new File(VersionDir+"/libs");
+        SimpleName = config.config.launcher + "_" + config.config.version;
+        VersionDir = new File("versions/" + SimpleName);
+        GameDir = new File(VersionDir + "/.minecraft");
+        GameJar = new File(VersionDir + "/" + SimpleName + ".jar");
+        GameManifest = new File(VersionDir + "/" + SimpleName + ".json");
+        BaseManifest = new File(VersionDir + "/" + config.config.version + ".json");
+        AssetsDir = new File(GameDir + "/assets");
+        AssetIndexes = new File(AssetsDir + "/indexes");
+        LoggingDir = new File(GameDir + "/assets/log_configs");
+        NativesDir = new File(VersionDir + "/natives");
+        LibrariesDir = new File(VersionDir + "/libs");
     }
 
     public void CreateBaseDirs() {
-        VersionDir.mkdirs(); GameDir.mkdirs(); AssetsDir.mkdirs();
-        LoggingDir.mkdirs(); NativesDir.mkdirs(); LibrariesDir.mkdirs();
-        new File(VersionDir+"/nativesJars").mkdirs(); AssetIndexes.mkdirs();
+        VersionDir.mkdirs();
+        GameDir.mkdirs();
+        AssetsDir.mkdirs();
+        LoggingDir.mkdirs();
+        NativesDir.mkdirs();
+        LibrariesDir.mkdirs();
+        new File(VersionDir + "/nativesJars").mkdirs();
+        AssetIndexes.mkdirs();
     }
 
-    public boolean VersionInstalled() { return new File("versions/" + config.config.launcher + "_" + config.config.version).exists(); }
+    public boolean VersionInstalled() {
+        return new File("versions/" + config.config.launcher + "_" + config.config.version).exists();
+    }
 
     public void Install() throws Exception {
         String apiUrl = "https://meta.quiltmc.org/v3/versions/loader/";
         String v = "";
         try {
-            v = json.parse(HttpUtils.read(apiUrl + config.config.version)).getAsJsonArray().get(0).getAsJsonObject().get("loader").getAsJsonObject().get("version").getAsString();
+            v = json.parse(HttpUtils.read(apiUrl + config.config.version)).getAsJsonArray().get(0).getAsJsonObject()
+                    .get("loader").getAsJsonObject().get("version").getAsString();
         } catch (Exception ignore) {
-            throw new Exception(config.config.launcher+" Version "+config.config.version+" does not exist.");
+            throw new Exception(config.config.launcher + " Version " + config.config.version + " does not exist.");
         }
         CreateBaseDirs();
-        String QuiltString = HttpUtils.download(apiUrl+config.config.version+"/"+v+"/profile/json", GameManifest.toString());
+        String QuiltString = HttpUtils.download(apiUrl + config.config.version + "/" + v + "/profile/json",
+                GameManifest.toString());
         QuiltObj = json.parse(QuiltString).getAsJsonObject();
-        configParser baseConfig = new configParser(); Config vanillaConfig = new Config();
+        configParser baseConfig = new configParser();
+        Config vanillaConfig = new Config();
         vanillaConfig.version = QuiltObj.get("inheritsFrom").getAsString();
         vanillaConfig.launcher = "Vanilla";
         baseConfig.loadConfig(vanillaConfig);
-        baseConfig.loadVmanifest(); baseConfig.GetVersionTypeAndUrl();
+        baseConfig.loadVmanifest();
+        baseConfig.GetVersionTypeAndUrl();
         VanillaLauncher vanilla = new VanillaLauncher(baseConfig, config);
         vanilla.Install();
         QuiltDownloadDependencies();
@@ -129,7 +140,7 @@ public class QuiltLauncher {
         args.add(AssetsDir.getAbsolutePath());
         args.add("--assetIndex");
         args.add(AssetId);
-        configParser.addUserArgs(args);
+        configParser.addUserArgs(args, config.config);
         args.add("--versionType");
         args.add(manifest.get("type").getAsString());
         ProcessBuilder build = new ProcessBuilder();
@@ -148,9 +159,9 @@ public class QuiltLauncher {
             String jar = sp[1];
             String ver = sp[2];
             path = path.replace(".", "/");
-            path += "/"+jar+"/"+ver;
-            path += "/"+jar+"-"+ver+".jar";
-            dep.add(x.get("url").getAsString()+path);
+            path += "/" + jar + "/" + ver;
+            path += "/" + jar + "-" + ver + ".jar";
+            dep.add(x.get("url").getAsString() + path);
         }
         for (int i = 0; i < dep.size(); i++) {
             // System.out.println(new File(new URI(dep.get(i)).getPath()).getName());

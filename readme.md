@@ -4,3 +4,5 @@
     cd MinecraftLauncher
     py build.py
     
+## Running
+    C

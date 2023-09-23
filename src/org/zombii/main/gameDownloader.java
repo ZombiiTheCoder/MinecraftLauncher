@@ -173,7 +173,8 @@ public class gameDownloader {
                 dir.add(NativeJarDir + "/" + (new File(new URI(WindowsNatives.get(i)).getPath()).getName()));
                 HttpUtils.download(WindowsNatives.get(i),
                         NativeJarDir + "/" + (new File(new URI(WindowsNatives.get(i)).getPath()).getName()));
-            } catch (Exception ignore) {}
+            } catch (Exception ignore) {
+            }
         }
 
         for (int i = 0; i < dir.size(); i++) {
@@ -214,10 +215,10 @@ public class gameDownloader {
         String jar = sp[1];
         String ver = sp[2];
         path = path.replace(".", "/");
-        path += "/"+jar+"/"+ver;
-        path += "/"+jar+"-"+ver+".jar";
-        System.out.println(url+path);
-        libraries.add(url+path);
+        path += "/" + jar + "/" + ver;
+        path += "/" + jar + "-" + ver + ".jar";
+        System.out.println(url + path);
+        libraries.add(url + path);
     }
 
     private void CollectParentAndChildLibs(int deepness, JsonObject parent, JsonObject sub) {
