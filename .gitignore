@@ -23,3 +23,4 @@ src/org/zombii/main/gameDownloader.java
 src/org/zombii/main/gameLauncher.java
 src/org/zombii/main/personal.java
 Compiledsrc
+.vscode
