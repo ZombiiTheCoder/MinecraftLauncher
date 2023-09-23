@@ -5,4 +5,11 @@
     py build.py
     
 ## Running
-    C
+    cd bin
+    java -jar "Launcher.jar"
+
+or
+
+    open file explorer
+    go to "MinecraftLauncher/bin"
+    open/doubleclick "Launcher.jar" and wait
