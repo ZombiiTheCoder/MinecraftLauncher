@@ -1,54 +1,42 @@
 package org.zombii.utils;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Scanner;
+import java.io.*;
+import java.nio.file.*;
+import java.util.*;
 
 public class FileUtils {
 
-    public FileUtils(){
-
+    public FileUtils() {
     }
 
-    public static String read(String File) {
-        File FileObj = new File(File);
-        StringBuilder Data = new StringBuilder();
-        try {
-            Scanner myReader = new Scanner(FileObj);
+    public static String read(String filePath) {
+        StringBuilder data = new StringBuilder();
+        try (Scanner myReader = new Scanner(new File(filePath))) {
             while (myReader.hasNextLine()) {
-                String data = myReader.nextLine();
-                Data.append(data).append("\n");
+                String line = myReader.nextLine();
+                data.append(line).append("\n");
             }
-            myReader.close();
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        return Data.toString();
+        return data.toString();
     }
 
-    public static byte[] readBytes(String file) {
-        byte[] bytes = new byte[1];
-
+    public static byte[] readBytes(String filePath) {
+        byte[] bytes = new byte[0];
         try {
-            Files.readAllBytes(Paths.get(file));
-        } catch (Exception e) {
+            bytes = Files.readAllBytes(Paths.get(filePath));
+        } catch (IOException e) {
             e.printStackTrace();
             System.err.println(e.getMessage());
         }
-
         return bytes;
     }
 
-    public static void remove(String file) {
-        File f = new File(file);
-        if (f.exists()) {
-            f.delete();
+    public static void remove(String filePath) {
+        File file = new File(filePath);
+        if (file.exists()) {
+            file.delete();
         }
     }
 
@@ -62,62 +50,46 @@ public class FileUtils {
         return dir.delete();
     }
 
-    public static File[] getFiles(File StartDir) {
-        ArrayList<File> Files = new ArrayList<File>();
-        File[] allContents = StartDir.listFiles();
+    public static File[] getFiles(File startDir) {
+        List<File> files = new ArrayList<>();
+        File[] allContents = startDir.listFiles();
         if (allContents != null) {
             for (File file : allContents) {
                 if (!file.isDirectory()) {
-                    Files.add(file);
+                    files.add(file);
                 }
-                Files.addAll(Arrays.asList(getFiles(file)));
+                files.addAll(Arrays.asList(getFiles(file)));
             }
         }
-        File[] FilesN = new File[Files.size()];
-        for (int i = 0; i < FilesN.length; i++) {
-            FilesN[i] = Files.get(i);
-        }
-        return FilesN;
+        return files.toArray(new File[0]);
     }
 
-    public static File[] getFiles(File StartDir, String ext) {
-        ArrayList<File> Files = new ArrayList<File>();
-        File[] allContents = StartDir.listFiles();
+    public static File[] getFiles(File startDir, String ext) {
+        List<File> files = new ArrayList<>();
+        File[] allContents = startDir.listFiles();
         if (allContents != null) {
             for (File file : allContents) {
                 if (!file.isDirectory() && file.toString().contains(ext)) {
-                    Files.add(file);
+                    files.add(file);
                 }
-                Files.addAll(Arrays.asList(getFiles(file, ext)));
+                files.addAll(Arrays.asList(getFiles(file, ext)));
             }
         }
-        File[] FilesN = new File[Files.size()];
-        for (int i = 0; i < FilesN.length; i++) {
-            FilesN[i] = Files.get(i);
-        }
-        return FilesN;
+        return files.toArray(new File[0]);
     }
 
-    public static void writeFile(String file, String contents) {
-        try {
-            FileWriter myWriter = new FileWriter(file);
+    public static void writeFile(String filePath, String contents) {
+        try (FileWriter myWriter = new FileWriter(filePath)) {
             myWriter.write(contents);
-            myWriter.close();
-            // System.out.println("Successfully wrote to the file.");
         } catch (IOException e) {
-            // System.out.println("An error occurred.");
             e.printStackTrace();
         }
     }
 
-    public static void writeFile(String file, byte[] contents) {
-        try {
-            FileOutputStream myWriter = new FileOutputStream(file);
+    public static void writeFile(String filePath, byte[] contents) {
+        try (FileOutputStream myWriter = new FileOutputStream(filePath)) {
             myWriter.write(contents);
-            myWriter.close();
-            // System.out.println("Successfully wrote to the file.");
         } catch (IOException e) {
-            // System.out.println("An error occurred.");
             e.printStackTrace();
         }
     }
