@@ -2,14 +2,16 @@ import os
 import shutil; src = set(); import subprocess; import zipfile
 for root, dirs, files in os.walk("src"):
     for file in files:
-        src.add(os.path.join("Compiled"+root, file))
-        if not os.path.exists("Compiled"+root):
-            os.makedirs("Compiled"+root)
-        fr = open(os.path.join(root, file), "rb")
-        f = open(os.path.join("Compiled"+root, file), "wb")
-        f.write(fr.read())
-        f.close()
-        fr.close()
+        if not (("gameDownloader.java" in file) or ("gameLauncher.java" in file) or ("personal.java" in file)):
+            src.add(os.path.join("Compiled"+root, file))
+            if not os.path.exists("Compiled"+root):
+                os.makedirs("Compiled"+root)
+            fr = open(os.path.join(root, file), "rb")
+            f = open(os.path.join("Compiled"+root, file), "wb")
+            f.write(fr.read())
+            f.close()
+            fr.close()
+
 JDK = 'E:/Program Files/Java/jdk-20/bin'
 if not (os.path.exists(JDK)):
     JDK = 'C:/Program Files/Java/jdk-20/bin'
@@ -37,6 +39,6 @@ for root, dirs, files in os.walk("Compilesrc/META-INF"):
 os.chdir("Compiledsrc")
 print(os.path.join(JDK, "jar.exe")); args = [os.path.join(JDK, "jar.exe"), "cfe", "../bin/Launcher.jar", "org.zombii.main.Main", "org", "com"]; subprocess.call(args)
 os.chdir("../")
-shutil.rmtree("Compiledsrc", ignore_errors=True)
+# shutil.rmtree("Compiledsrc", ignore_errors=True)
 os.chdir("bin")
-os.system("java -jar Launcher.jar")
+# os.system("java -jar Launcher.jar")
