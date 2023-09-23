@@ -39,6 +39,6 @@ for root, dirs, files in os.walk("Compilesrc/META-INF"):
 os.chdir("Compiledsrc")
 print(os.path.join(JDK, "jar.exe")); args = [os.path.join(JDK, "jar.exe"), "cfe", "../bin/Launcher.jar", "org.zombii.main.Main", "org", "com"]; subprocess.call(args)
 os.chdir("../")
-# shutil.rmtree("Compiledsrc", ignore_errors=True)
+shutil.rmtree("Compiledsrc", ignore_errors=True)
 os.chdir("bin")
 # os.system("java -jar Launcher.jar")
