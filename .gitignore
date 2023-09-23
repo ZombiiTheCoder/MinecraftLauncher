@@ -1,0 +1,21 @@
+bin/.minecraft
+bin/config
+bin/crash-reports
+bin/logs
+bin/ModTranslations
+bin/versions
+bin/versions1
+bin/*.jar
+bin/ops.json
+bin/versionManifest.json
+bin/versionManifest_v2.json
+bin/whitelist.json
+*.zip
+e.bat
+GameRepackager copy.py
+.idea
+MinecraftLauncher.iml
+modcombiner.py
+t.bat
+t.txt
+test
