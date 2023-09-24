@@ -115,14 +115,14 @@ public class VanillaLauncher {
     }
 
     public void DownloadAssets() {
-        for (String object : assetManifest.get("objects").getAsJsonObject().keySet()) {
-            String hash = assetManifest.get("objects").getAsJsonObject().get(object).getAsJsonObject().get("hash")
-                    .getAsString();
+        String[] ks = assetManifest.get("objects").getAsJsonObject().keySet().toArray(new String[0]);
+        for (String object : ks) {
+            String hash = assetManifest.get("objects").getAsJsonObject().get(object).getAsJsonObject().get("hash").getAsString();
             String hashq = hash.split("(?!^)")[0] + hash.split("(?!^)")[1];
             String dir = AssetsDir + "/objects/" + hashq;
             new File(dir).mkdirs();
             try {
-                System.out.println("Installing Asset >>> " + object + "  " + hashq + "  " + hash);
+                System.out.println("Installing Asset "+Math.abs((double) ks.length)+" >>> " + object + "  " + hashq + "  " + hash);
                 HttpUtils.download("https://resources.download.minecraft.net/" + hashq + "/" + hash, dir + "/" + hash);
             } catch (Exception ignore) {
             }
@@ -135,14 +135,12 @@ public class VanillaLauncher {
         for (String x : natives) {
             dir.add(NativesDir + "Jars/" + new File(new URI(x).getPath()).getName());
             HttpUtils.download(x, NativesDir + "Jars/" + new File(new URI(x).getPath()).getName());
-            System.out.println("Installing Native >>> " + new File(new URI(x).getPath()).getName());
         }
 
         for (int i = 0; i < dir.size(); i++) {
             String x = dir.get(i);
             ZipUtils.unzip(x, NativesDir.toString());
             FileUtils.deleteDirectory(new File(NativesDir + "/META-INF"));
-            System.out.println("Extracting Native >>> " + new File(new URI(x).getPath()).getName());
         }
         FileUtils.deleteDirectory(new File(NativesDir + "Jars"));
     }
