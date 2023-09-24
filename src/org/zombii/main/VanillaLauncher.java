@@ -83,10 +83,10 @@ public class VanillaLauncher {
                 .parse(HttpUtils.download(manifest.get("assetIndex").getAsJsonObject().get("url").getAsString(),
                         AssetManifest.toString()))
                 .getAsJsonObject();
-        System.out.println("Installing Client >>> " + GameJar.toString());
         HttpUtils.download(
                 manifest.get("downloads").getAsJsonObject().get("client").getAsJsonObject().get("url").getAsString(),
                 GameJar.toString());
+        System.out.println("Installing Client >>> " + GameJar.toString());
         DownloadLibsAndNatives();
         DownloadAssets();
         if (manifest.has("logging")) {
@@ -122,8 +122,8 @@ public class VanillaLauncher {
             String dir = AssetsDir + "/objects/" + hashq;
             new File(dir).mkdirs();
             try {
-                HttpUtils.download("https://resources.download.minecraft.net/" + hashq + "/" + hash, dir + "/" + hash);
                 System.out.println("Installing Asset >>> " + object + "  " + hashq + "  " + hash);
+                HttpUtils.download("https://resources.download.minecraft.net/" + hashq + "/" + hash, dir + "/" + hash);
             } catch (Exception ignore) {
             }
         }
@@ -134,15 +134,15 @@ public class VanillaLauncher {
         List<String> dir = new ArrayList<>();
         for (String x : natives) {
             dir.add(NativesDir + "Jars/" + new File(new URI(x).getPath()).getName());
-            System.out.println("Installing Native >>> " + new File(new URI(x).getPath()).getName());
             HttpUtils.download(x, NativesDir + "Jars/" + new File(new URI(x).getPath()).getName());
+            System.out.println("Installing Native >>> " + new File(new URI(x).getPath()).getName());
         }
 
         for (int i = 0; i < dir.size(); i++) {
             String x = dir.get(i);
-            System.out.println("Extracting Native >>> " + new File(new URI(x).getPath()).getName());
             ZipUtils.unzip(x, NativesDir.toString());
             FileUtils.deleteDirectory(new File(NativesDir + "/META-INF"));
+            System.out.println("Extracting Native >>> " + new File(new URI(x).getPath()).getName());
         }
         FileUtils.deleteDirectory(new File(NativesDir + "Jars"));
     }

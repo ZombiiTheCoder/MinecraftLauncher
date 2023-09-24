@@ -171,8 +171,8 @@ public class FabricLauncher {
         }
         for (int i = 0; i < dep.size(); i++) {
             // System.out.println(new File(new URI(dep.get(i)).getPath()).getName());
-            System.out.println("Installing Fabric Library >>> " + new File(new URI(dep.get(i)).getPath()).getName());
             HttpUtils.download(dep.get(i), LibrariesDir + "/" + (new File(new URI(dep.get(i)).getPath()).getName()));
+            System.out.println("Installing Fabric Library >>> " + new File(new URI(dep.get(i)).getPath()).getName());
         }
         // System.out.println("Libraries Downloaded "+dep.size());
     }
