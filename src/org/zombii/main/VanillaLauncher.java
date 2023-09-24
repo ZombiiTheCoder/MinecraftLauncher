@@ -116,14 +116,15 @@ public class VanillaLauncher {
 
     public void DownloadAssets() {
         String[] ks = assetManifest.get("objects").getAsJsonObject().keySet().toArray(new String[0]);
-        for (String object : ks) {
+        for (int i = 0; i < ks.length; i++) {
+            String object = ks[i];
             String hash = assetManifest.get("objects").getAsJsonObject().get(object).getAsJsonObject().get("hash").getAsString();
             String hashq = hash.split("(?!^)")[0] + hash.split("(?!^)")[1];
             String dir = AssetsDir + "/objects/" + hashq;
             new File(dir).mkdirs();
             try {
-                System.out.println("Installing Asset "+Math.abs((double) ks.length)+" >>> " + object + "  " + hashq + "  " + hash);
                 HttpUtils.download("https://resources.download.minecraft.net/" + hashq + "/" + hash, dir + "/" + hash);
+                System.out.println("Installing Asset "+Math.round(((double) 100.0 / (double) ks.length)*i)+"% >>> " + object + "  " + hashq + "  " + hash);
             } catch (Exception ignore) {
             }
         }
