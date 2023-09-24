@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@SuppressWarnings("deprecation")
 public class FabricLauncher {
     private final configParser config;
     private final File AssetsDir;
@@ -67,7 +68,8 @@ public class FabricLauncher {
             v = json.parse(HttpUtils.read(apiUrl + config.config.version)).getAsJsonArray().get(0).getAsJsonObject()
                     .get("loader").getAsJsonObject().get("version").getAsString();
         } catch (Exception ignore) {
-            throw new Exception(config.config.launcher + " Version " + config.config.version + " does not exist.");
+            System.out.println(config.config.launcher + " Version " + config.config.version + " does not exist.");
+            return;
         }
         CreateBaseDirs();
         String FabricString = HttpUtils.download(apiUrl + config.config.version + "/" + v + "/profile/json",
@@ -169,6 +171,7 @@ public class FabricLauncher {
         }
         for (int i = 0; i < dep.size(); i++) {
             // System.out.println(new File(new URI(dep.get(i)).getPath()).getName());
+            System.out.println("Installing Fabric Library >>> " + new File(new URI(dep.get(i)).getPath()).getName());
             HttpUtils.download(dep.get(i), LibrariesDir + "/" + (new File(new URI(dep.get(i)).getPath()).getName()));
         }
         // System.out.println("Libraries Downloaded "+dep.size());

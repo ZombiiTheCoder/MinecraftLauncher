@@ -28,8 +28,7 @@ public class HttpUtils {
         StringBuilder stringBuilder = new StringBuilder();
 
         String inputLine;
-        while ((inputLine = bufferedReader.readLine()) != null)
-        {
+        while ((inputLine = bufferedReader.readLine()) != null) {
             stringBuilder.append(inputLine);
             stringBuilder.append(System.lineSeparator());
         }

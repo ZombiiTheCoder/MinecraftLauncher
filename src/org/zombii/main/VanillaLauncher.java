@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@SuppressWarnings("deprecation")
 public class VanillaLauncher {
     private final configParser config;
     private final File AssetsDir;
@@ -82,6 +83,7 @@ public class VanillaLauncher {
                 .parse(HttpUtils.download(manifest.get("assetIndex").getAsJsonObject().get("url").getAsString(),
                         AssetManifest.toString()))
                 .getAsJsonObject();
+        System.out.println("Installing Client >>> " + GameJar.toString());
         HttpUtils.download(
                 manifest.get("downloads").getAsJsonObject().get("client").getAsJsonObject().get("url").getAsString(),
                 GameJar.toString());
@@ -107,6 +109,7 @@ public class VanillaLauncher {
         LibPruner p = new LibPruner(libs);
         ExtractAndDownloadNatives(p.prune().get("win"));
         for (String lib : p.prune().get("lib")) {
+            System.out.println("Installing Library >>> " + new File(new URI(lib).getPath()).getName());
             HttpUtils.download(lib, LibrariesDir + "/" + new File(new URI(lib).getPath()).getName());
         }
     }
@@ -120,7 +123,7 @@ public class VanillaLauncher {
             new File(dir).mkdirs();
             try {
                 HttpUtils.download("https://resources.download.minecraft.net/" + hashq + "/" + hash, dir + "/" + hash);
-                System.out.println(object + "  " + hashq + "  " + hash);
+                System.out.println("Installing Asset >>> " + object + "  " + hashq + "  " + hash);
             } catch (Exception ignore) {
             }
         }
@@ -131,11 +134,13 @@ public class VanillaLauncher {
         List<String> dir = new ArrayList<>();
         for (String x : natives) {
             dir.add(NativesDir + "Jars/" + new File(new URI(x).getPath()).getName());
+            System.out.println("Installing Native >>> " + new File(new URI(x).getPath()).getName());
             HttpUtils.download(x, NativesDir + "Jars/" + new File(new URI(x).getPath()).getName());
         }
 
         for (int i = 0; i < dir.size(); i++) {
             String x = dir.get(i);
+            System.out.println("Extracting Native >>> " + new File(new URI(x).getPath()).getName());
             ZipUtils.unzip(x, NativesDir.toString());
             FileUtils.deleteDirectory(new File(NativesDir + "/META-INF"));
         }
