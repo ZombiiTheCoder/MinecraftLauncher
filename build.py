@@ -1,4 +1,4 @@
-import os
+import os; os.system("cls")
 import shutil; src = set(); import subprocess; import zipfile
 for root, dirs, files in os.walk("src"):
     for file in files:
@@ -12,14 +12,23 @@ for root, dirs, files in os.walk("src"):
             f.close()
             fr.close()
 
-JDK = 'E:/Program Files/Java/jdk-20/bin'
+libs = []
+
+for root, dirs, files in os.walk("lib"):
+    for file in files:
+        libs.append(os.path.join(root, file))
+
+JDK = 'E:/Program Files/Java/jdk-13/bin'
 if not (os.path.exists(JDK)):
     JDK = 'C:/Program Files/Java/jdk-20/bin'
 
-print(os.path.join(JDK, "javac.exe")); args = [os.path.join(JDK, "javac.exe"), "-cp", "libs/gson-2.10.1.jar"]; args.extend(src); subprocess.call(args)
-with zipfile.ZipFile("libs/gson-2.10.1.jar", "r") as f:
-    f.extractall("Compiledsrc/")
-    f.close()
+print(os.path.join(JDK, "javac.exe")); args = [os.path.join(JDK, "javac.exe"), "-cp", ";".join(libs)]; args.extend(src);
+print(" ".join(args))
+subprocess.call(args)
+for x in libs:
+    with zipfile.ZipFile(x, "r") as f:
+        f.extractall("Compiledsrc/")
+        f.close()
 
 for root, dirs, files in os.walk("Compilesrc/META-INF"):
     for file in files:
@@ -36,9 +45,10 @@ for root, dirs, files in os.walk("Compilesrc/META-INF"):
             print("q", os.path.realpath(os.path.join(root, dirr)))
     shutil.rmtree("Compilesrc/META-INF", ignore_errors=True)
 
-os.chdir("Compiledsrc")
-print(os.path.join(JDK, "jar.exe")); args = [os.path.join(JDK, "jar.exe"), "cfe", "../bin/Launcher.jar", "org.zombii.main.Main", "org", "com"]; subprocess.call(args)
-os.chdir("../")
+# os.chdir("Compiledsrc")
+print(os.path.join(JDK, "jar.exe")); args = [os.path.join(JDK, "jar.exe"), "cfe", "bin/Launcher.jar", "org.zombii.main.Main", "-C", "Compiledsrc", "."]; subprocess.call(args)
+# os.chdir("../")
 shutil.rmtree("Compiledsrc", ignore_errors=True)
 os.chdir("bin")
-# os.system("java -jar Launcher.jar")
+os.system("cls")
+os.system("java -jar Launcher.jar")

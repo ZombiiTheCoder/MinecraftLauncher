@@ -2,6 +2,8 @@ package org.zombii.main;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import org.zombii.launcher.LibPruner;
 import org.zombii.utils.FileUtils;
 import org.zombii.utils.HttpUtils;
 import org.zombii.utils.ZipUtils;

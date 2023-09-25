@@ -1,8 +1,10 @@
-package org.zombii.main;
+package org.zombii.launcher;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import org.zombii.main.Config;
+import org.zombii.main.configParser;
 import org.zombii.utils.FileUtils;
 import org.zombii.utils.HttpUtils;
 
@@ -13,7 +15,7 @@ import java.util.List;
 import java.util.Objects;
 
 @SuppressWarnings("deprecation")
-public class FabricLauncher {
+public class QuiltLauncher extends VanillaLauncher {
     private final configParser config;
     private final File AssetsDir;
     private final File AssetIndexes;
@@ -29,9 +31,10 @@ public class FabricLauncher {
     private JsonObject manifest;
     private File LoggingConfig;
     private File BaseManifest;
-    private JsonObject FabricObj;
+    private JsonObject QuiltObj;
 
-    public FabricLauncher(configParser config) {
+    public QuiltLauncher(configParser config) {
+        super(config);
         this.config = config;
         SimpleName = config.config.launcher + "_" + config.config.version;
         VersionDir = new File("versions/" + SimpleName);
@@ -46,6 +49,7 @@ public class FabricLauncher {
         LibrariesDir = new File(VersionDir + "/libs");
     }
 
+    @Override
     public void CreateBaseDirs() {
         VersionDir.mkdirs();
         GameDir.mkdirs();
@@ -57,12 +61,14 @@ public class FabricLauncher {
         AssetIndexes.mkdirs();
     }
 
+    @Override
     public boolean VersionInstalled() {
         return new File("versions/" + config.config.launcher + "_" + config.config.version).exists();
     }
 
+    @Override
     public void Install() throws Exception {
-        String apiUrl = "https://meta.fabricmc.net/v2/versions/loader/";
+        String apiUrl = "https://meta.quiltmc.org/v3/versions/loader/";
         String v = "";
         try {
             v = json.parse(HttpUtils.read(apiUrl + config.config.version)).getAsJsonArray().get(0).getAsJsonObject()
@@ -72,24 +78,26 @@ public class FabricLauncher {
             return;
         }
         CreateBaseDirs();
-        String FabricString = HttpUtils.download(apiUrl + config.config.version + "/" + v + "/profile/json",
+        String QuiltString = HttpUtils.download(apiUrl + config.config.version + "/" + v + "/profile/json",
                 GameManifest.toString());
-        FabricObj = json.parse(FabricString).getAsJsonObject();
+        QuiltObj = json.parse(QuiltString).getAsJsonObject();
         configParser baseConfig = new configParser();
         Config vanillaConfig = new Config();
-        vanillaConfig.version = FabricObj.get("inheritsFrom").getAsString();
+        vanillaConfig.version = QuiltObj.get("inheritsFrom").getAsString();
         vanillaConfig.launcher = "Vanilla";
         baseConfig.loadConfig(vanillaConfig);
         baseConfig.loadVmanifest();
         baseConfig.GetVersionTypeAndUrl();
         VanillaLauncher vanilla = new VanillaLauncher(baseConfig, config);
+        vanilla.AlterMainClass(true);
         vanilla.Install();
-        FabDownloadDependencies();
+        QuiltDownloadDependencies();
     }
 
+    @Override
     public void Launch() throws Exception {
         manifest = json.parse(FileUtils.read(BaseManifest.toString())).getAsJsonObject();
-        FabricObj = json.parse(FileUtils.read(GameManifest.toString())).getAsJsonObject();
+        QuiltObj = json.parse(FileUtils.read(GameManifest.toString())).getAsJsonObject();
         if (manifest.has("logging")) {
             String id = manifest.get("logging").getAsJsonObject().get("client").getAsJsonObject().get("file")
                     .getAsJsonObject().get("id").getAsString();
@@ -103,8 +111,8 @@ public class FabricLauncher {
         }
         libs.append(GameJar.getAbsolutePath());
         libs.append(";");
-        String mainClass = FabricObj.get("mainClass").getAsString();
-        if (Objects.equals(mainClass, "net.minecraft.launchwrapper.Launch")) {
+        String mainClass = QuiltObj.get("mainClass").getAsString();
+        if (Objects.equals(mainClass, "net.minecraft.launchwrapper.Launch") && this.AlterMainClass()) {
             mainClass = "net.minecraft.client.Minecraft";
         }
         System.out.println(mainClass);
@@ -124,9 +132,6 @@ public class FabricLauncher {
         args.add("-Dminecraft.launcher.version=2.6.16");
         args.add("-cp");
         args.add(libs.toString());
-        for (JsonElement arg : FabricObj.get("arguments").getAsJsonObject().get("jvm").getAsJsonArray()) {
-            args.add(arg.getAsString());
-        }
         args.add("-Xmx2G");
         args.add("-XX:+UnlockExperimentalVMOptions");
         args.add("-XX:+UseG1GC");
@@ -155,10 +160,10 @@ public class FabricLauncher {
         build.start();
     }
 
-    public void FabDownloadDependencies() throws Exception {
+    public void QuiltDownloadDependencies() throws Exception {
         List<String> dep = new ArrayList<>();
-        for (int i = 0; i < FabricObj.get("libraries").getAsJsonArray().size(); i++) {
-            JsonObject x = FabricObj.get("libraries").getAsJsonArray().get(i).getAsJsonObject();
+        for (int i = 0; i < QuiltObj.get("libraries").getAsJsonArray().size(); i++) {
+            JsonObject x = QuiltObj.get("libraries").getAsJsonArray().get(i).getAsJsonObject();
             String name = x.get("name").getAsString();
             String[] sp = name.split(":");
             String path = sp[0];
@@ -172,7 +177,7 @@ public class FabricLauncher {
         for (int i = 0; i < dep.size(); i++) {
             // System.out.println(new File(new URI(dep.get(i)).getPath()).getName());
             HttpUtils.download(dep.get(i), LibrariesDir + "/" + (new File(new URI(dep.get(i)).getPath()).getName()));
-            System.out.println("Installing Fabric Library >>> " + new File(new URI(dep.get(i)).getPath()).getName());
+            System.out.println("Installing Quilt Library >>> " + new File(new URI(dep.get(i)).getPath()).getName());
         }
         // System.out.println("Libraries Downloaded "+dep.size());
     }

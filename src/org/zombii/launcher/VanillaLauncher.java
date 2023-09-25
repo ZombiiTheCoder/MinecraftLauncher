@@ -1,7 +1,8 @@
-package org.zombii.main;
+package org.zombii.launcher;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.zombii.main.configParser;
 import org.zombii.utils.FileUtils;
 import org.zombii.utils.HttpUtils;
 import org.zombii.utils.ZipUtils;
@@ -11,6 +12,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @SuppressWarnings("deprecation")
 public class VanillaLauncher {
@@ -29,6 +32,8 @@ public class VanillaLauncher {
     private JsonObject manifest, assetManifest;
     private File AssetManifest;
     private String AssetId;
+    private boolean mainClassAlteration;
+    private boolean customLaunchWrapper;
 
     public VanillaLauncher(configParser config) {
         this.config = config;
@@ -56,6 +61,12 @@ public class VanillaLauncher {
         NativesDir = new File(VersionDir + "/natives");
         LibrariesDir = new File(VersionDir + "/libs");
     }
+
+    public boolean UseCustomLaunchWrapper() { return this.customLaunchWrapper; }
+    public void UseCustomLaunchWrapper(boolean wrapper) { this.customLaunchWrapper = wrapper; }
+
+    public boolean AlterMainClass() { return this.mainClassAlteration; }
+    public void AlterMainClass(boolean alter) { this.mainClassAlteration = alter; }
 
     public void CreateBaseDirs() {
         VersionDir.mkdirs();
@@ -166,6 +177,8 @@ public class VanillaLauncher {
 
     public void Launch() throws Exception {
         manifest = json.parse(FileUtils.read(GameManifest.toString())).getAsJsonObject();
+        JRE jre = null;
+
         if (manifest.has("logging")) {
             String id = manifest.get("logging").getAsJsonObject().get("client").getAsJsonObject().get("file")
                     .getAsJsonObject().get("id").getAsString();
@@ -177,18 +190,48 @@ public class VanillaLauncher {
             libs.append(x.getAbsolutePath());
             libs.append(";");
         }
-        libs.append(GameJar);
-        libs.append(";");
         String mainClass = manifest.get("mainClass").getAsString();
-        if (Objects.equals(mainClass, "net.minecraft.launchwrapper.Launch")) {
-            mainClass = "net.minecraft.client.Minecraft";
+        System.out.println(mainClass);
+        if (Objects.equals(mainClass, "net.minecraft.launchwrapper.Launch") && this.mainClassAlteration || Objects.equals(mainClass, "net.minecraft.launchwrapper.Launch") && this.customLaunchWrapper) {
+            if (this.customLaunchWrapper) {
+                libs.append(new File(this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath()).getAbsolutePath());
+                System.out.println(new File(this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath()).getParentFile().getAbsolutePath());
+                libs.append(";");
+                mainClass = "org.zombii.launcher.wrapper.Launch";
+            } else {
+                mainClass = "net.minecraft.client.Minecraft";
+            }
         }
-        String JDK = "E:/Program Files/Java/jdk-20/bin/java.exe";
-        if (!new File(JDK).exists()) {
-            JDK = "C:/Program Files/Java/jdk-20/bin/java.exe";
+
+        String JRE_JDK = "E:/Program Files/Java/jdk-20/bin/java.exe";
+        if (!new File(JRE_JDK).exists()) {
+            JRE_JDK = "C:/Program Files/Java/jdk-20/bin/java.exe";
         }
+
+        if (manifest.get("mainClass").getAsString().equals("net.minecraft.launchwrapper.Launch")) {
+            jre = new JRE(
+                    manifest.get("javaVersion").getAsJsonObject().get("component").getAsString(),
+                    manifest.get("javaVersion").getAsJsonObject().get("majorVersion").getAsInt()
+            );
+            if (new File("C:/Windows/CCM").exists()) {
+                System.out.println("---------------------> Version "+config.config.version+" Not Supported on Windows Enterprise");
+                System.exit(1);
+            }
+            if (!jre.JRE_LOCATION.exists()) jre.Install();
+            JRE_JDK = jre.JRE_LOCATION+"/bin/java.exe";
+        }
+        if (jre == null && !new File(JRE_JDK).exists() && !new File("C:/Windows/CCM").exists()) {
+            jre = new JRE(
+                    "jre-20",
+                    manifest.get("javaVersion").getAsJsonObject().get("majorVersion").getAsInt()
+            );
+            if (!jre.JRE_LOCATION.exists()) jre.Install();
+            JRE_JDK = jre.JRE_LOCATION+"/bin/java.exe";
+        }
+        libs.append(GameJar.getAbsolutePath());
+        libs.append(";");
         List<String> args = new ArrayList<>();
-        args.add(JDK);
+        args.add(JRE_JDK);
         args.add("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
         args.add("-Dos.name=Windows 10");
         args.add("-Dos.version=10.0");
@@ -221,6 +264,18 @@ public class VanillaLauncher {
         configParser.addUserArgs(args, config.config);
         args.add("--versionType");
         args.add(config.vType);
+        if (manifest.has("minecraftArguments")) {
+            Pattern pattern = Pattern.compile("net.*Tweaker", Pattern.MULTILINE);
+            Matcher matcher = pattern.matcher(manifest.get("minecraftArguments").getAsString());
+//            System.out.println(matcher.find() + " " + matcher.group());
+            while (matcher.find()) {
+                String g = matcher.group();
+                System.out.println(g);
+                args.add("--tweakClass");
+                args.add(g.strip());
+            }
+        }
+        System.out.println(args);
         ProcessBuilder build = new ProcessBuilder();
         build.command(args.toArray(new String[0]));
         build.inheritIO();

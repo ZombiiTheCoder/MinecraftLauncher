@@ -1,7 +1,13 @@
 package org.zombii.utils;
 
 import java.io.*;
-import java.util.zip.*;
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.HashMap;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class ZipUtils {
     private static final int BUFFER_SIZE = 4096;
@@ -27,6 +33,27 @@ public class ZipUtils {
                 zipIn.closeEntry();
             }
         }
+    }
+
+    public static void extractSubDir(URI zipFileUri, String DirInZip, String targetDir) throws IOException {
+
+        Path targetPathDir = new File(targetDir).toPath();
+        FileSystem zipFs = FileSystems.newFileSystem(zipFileUri, new HashMap<>());
+        Path pathInZip = zipFs.getPath(DirInZip);
+        Files.walkFileTree(pathInZip, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
+                // Make sure that we conserve the hierachy of files and folders inside the zip
+                Path relativePathInZip = pathInZip.relativize(filePath);
+                Path targetPath = targetPathDir.resolve(relativePathInZip.toString());
+                Files.createDirectories(targetPath.getParent());
+
+                // And extract the file
+                Files.copy(filePath, targetPath);
+
+                return FileVisitResult.CONTINUE;
+            }
+        });
     }
 
     private static void extractFile(ZipInputStream zipIn, String filePath) throws IOException {

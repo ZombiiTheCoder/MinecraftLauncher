@@ -1,4 +1,4 @@
-package org.zombii.main;
+package org.zombii.launcher;
 
 import java.util.*;
 import java.util.stream.Collectors;

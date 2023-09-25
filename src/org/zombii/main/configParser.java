@@ -28,14 +28,6 @@ class VersionManifest {
     public versions[] versions;
 }
 
-class Config {
-    public String name;
-    public String usable;
-    public String version;
-    public String launcherHelp;
-    public String launcher;
-}
-
 public class configParser {
     Gson gson = new Gson();
 

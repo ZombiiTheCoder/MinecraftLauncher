@@ -1,5 +1,9 @@
 package org.zombii.main;
 
+import org.zombii.launcher.FabricLauncher;
+import org.zombii.launcher.QuiltLauncher;
+import org.zombii.launcher.VanillaLauncher;
+
 public class Main {
     public static configParser config;
 
@@ -12,8 +16,6 @@ public class Main {
     public static void main(String[] args) throws Exception {
         config = new configParser();
         config.loadConfig();
-        // System.out.println(config.vManifest.latest.release);
-        // System.out.println(config.vManifest.latest.snapshot);
 
         switch (config.config.launcher) {
             case "Fabric":
@@ -43,6 +45,8 @@ public class Main {
 
             case "Vanilla":
                 VanillaLauncher vanilla = new VanillaLauncher(init());
+                vanilla.AlterMainClass(false);
+                vanilla.UseCustomLaunchWrapper(false);
                 if (vanilla.VersionInstalled()) {
                     vanilla.Launch();
                 } else {
