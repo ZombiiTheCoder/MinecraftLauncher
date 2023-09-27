@@ -34,6 +34,7 @@ public class configParser {
     public String vType;
     public String vUrl;
     public Config config;
+    public AuthConfig authConfig;
     public VersionManifest vManifest = null;
     public String versionManifest = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
 
@@ -62,6 +63,17 @@ public class configParser {
         }
 
         return config;
+    }
+
+    public AuthConfig loadAuthConfig() throws Exception {
+
+        try (Reader reader = new FileReader("AuthConfig.json")) {
+            authConfig = gson.fromJson(reader, AuthConfig.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return authConfig;
     }
 
     public Config loadConfig(Config config) throws Exception {
@@ -96,6 +108,23 @@ public class configParser {
         args.add("");
         args.add("--userType");
         args.add("msa");
+    }
+
+    public static void addUserArgs(List<String> args, AuthConfig config) {
+        args.add("--username");
+        args.add(config.name);
+        args.add("--uuid");
+        args.add(config.uuid);
+        args.add("--xuid");
+        args.add(config.xuid);
+        args.add("--userProperties");
+        args.add("{}");
+        args.add("--clientId");
+        args.add(config.clientID);
+        args.add("--accessToken");
+        args.add(config.accessToken);
+        args.add("--userType");
+        args.add(config.userType);
     }
 
 }

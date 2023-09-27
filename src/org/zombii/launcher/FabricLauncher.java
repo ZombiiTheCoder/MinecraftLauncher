@@ -33,6 +33,7 @@ public class FabricLauncher extends VanillaLauncher {
     private File LoggingConfig;
     private File BaseManifest;
     private JsonObject FabricObj;
+    private boolean authConfig;
 
     public FabricLauncher(configParser config) {
         super(config);
@@ -152,7 +153,11 @@ public class FabricLauncher extends VanillaLauncher {
         args.add(AssetsDir.getAbsolutePath());
         args.add("--assetIndex");
         args.add(AssetId);
-        configParser.addUserArgs(args, config.config);
+        if (authConfig) {
+            configParser.addUserArgs(args, config.authConfig);
+        } else {
+            configParser.addUserArgs(args, config.config);
+        }
         args.add("--versionType");
         args.add(manifest.get("type").getAsString());
         ProcessBuilder build = new ProcessBuilder();
@@ -181,6 +186,11 @@ public class FabricLauncher extends VanillaLauncher {
             System.out.println("Installing Fabric Library >>> " + new File(new URI(dep.get(i)).getPath()).getName());
         }
         // System.out.println("Libraries Downloaded "+dep.size());
+    }
+
+    @Override
+    public void useAuthConfig(boolean b) {
+        authConfig = b;
     }
 
 }

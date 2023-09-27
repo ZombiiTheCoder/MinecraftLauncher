@@ -33,7 +33,7 @@ public class VanillaLauncher {
     private File AssetManifest;
     private String AssetId;
     private boolean mainClassAlteration;
-    private boolean customLaunchWrapper;
+    private boolean customLaunchWrapper, authConfig;
 
     public VanillaLauncher(configParser config) {
         this.config = config;
@@ -261,7 +261,11 @@ public class VanillaLauncher {
         args.add(AssetsDir.toString());
         args.add("--assetIndex");
         args.add(AssetId);
-        configParser.addUserArgs(args, config.config);
+        if (authConfig) {
+            configParser.addUserArgs(args, config.authConfig);
+        } else {
+            configParser.addUserArgs(args, config.config);
+        }
         args.add("--versionType");
         args.add(config.vType);
         if (manifest.has("minecraftArguments")) {
@@ -282,4 +286,7 @@ public class VanillaLauncher {
         build.start();
     }
 
+    public void useAuthConfig(boolean b) {
+        authConfig = b;
+    }
 }

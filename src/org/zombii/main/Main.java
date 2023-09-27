@@ -20,6 +20,7 @@ public class Main {
         switch (config.config.launcher) {
             case "Fabric":
                 FabricLauncher fabric = new FabricLauncher(config);
+                fabric.useAuthConfig(false);
                 if (fabric.VersionInstalled()) {
                     fabric.Launch();
                 } else {
@@ -30,6 +31,7 @@ public class Main {
 
             case "Quilt":
                 QuiltLauncher quilt = new QuiltLauncher(config);
+                quilt.useAuthConfig(false);
                 if (quilt.VersionInstalled()) {
                     quilt.Launch();
                 } else {
@@ -45,6 +47,7 @@ public class Main {
 
             case "Vanilla":
                 VanillaLauncher vanilla = new VanillaLauncher(init());
+                vanilla.useAuthConfig(false);
                 vanilla.AlterMainClass(false);
                 vanilla.UseCustomLaunchWrapper(false);
                 if (vanilla.VersionInstalled()) {
